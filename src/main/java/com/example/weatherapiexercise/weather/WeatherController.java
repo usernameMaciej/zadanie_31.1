@@ -4,9 +4,9 @@ import com.example.weatherapiexercise.model.WeatherData;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Optional;
 
 @Controller
 public class WeatherController {
@@ -22,23 +22,13 @@ public class WeatherController {
         return "home";
     }
 
-    @PostMapping("/weather")
-    public String getWeatherCity(@RequestParam String city, RedirectAttributes redirectAttributes) {
-
-        WeatherData weatherData = weatherService.getWeatherData(city);
-
-        if (weatherData != null) {
-            redirectAttributes.addFlashAttribute("weatherData", weatherData);
-            return "redirect:/weather";
-        } else {
-            return "redirect:/";
-        }
-    }
-
     @GetMapping("/weather")
-    public String showWeatherStats(Model model, WeatherData weatherData) {
-        if (model.containsAttribute("weatherData")) {
-            model.addAttribute("weatherData", weatherData);
+    public String showWeatherStats(@RequestParam String city, Model model) {
+
+        Optional<WeatherData> weatherData = weatherService.getWeatherData(city);
+
+        if (weatherData.isPresent()) {
+            model.addAttribute("weatherData", weatherData.get());
             return "weather";
         } else {
             return "redirect:/";
